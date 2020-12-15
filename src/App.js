@@ -1,15 +1,23 @@
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import './App.css';
 import Chat from './Chat/Chat';
 import Sidebar from './Sidebar/Sidebar';
 
 function App() {
   return (
-    <div className="app">
-      <div className="app__body">
-          <Sidebar />
-          <Chat />
-      </div>      
-    </div>
+		<div className="app">
+			<div className="app__body">
+				<Router>
+					<Sidebar />
+					<Switch>
+						<Route path="/rooms/:roomId">
+							<Chat />
+						</Route>
+						<Route path="/">{/* <Chat /> */}</Route>
+					</Switch>
+				</Router>
+			</div>
+		</div>
   );
 }
 

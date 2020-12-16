@@ -51,6 +51,14 @@ function Chat() {
     setInput('');
   }
 
+  const isReceiver = (msg) => (
+    msg.name === user.displayName && 'chat__receiver'
+  )
+
+  const lastMessage = () => (
+    new Date(messages[messages.length - 1]?.timestamp?.toDate()).toUTCString()
+  )
+
   return (
 		<div className="chat">
 			<div className="chat__header">
@@ -59,7 +67,7 @@ function Chat() {
 				/>
 				<div className="chat__headerInfo">
 					<h3>{roomName}</h3>
-					<p>Last seen at...</p>
+					<p>Last seen at {lastMessage()}</p>
 				</div>
 
 				<div className="chat__headerRight">
@@ -77,7 +85,7 @@ function Chat() {
 
 			<div className="chat__body">
 				{messages.map(msg => (
-					<p className={`chat__message ${true && 'chat__receiver'}`}>
+					<p className={`chat__message ${isReceiver(msg)}`}>
 						<span className="chat__name">{msg.name}</span>
 						{msg.message}
 						<span className="chat__timestamp">

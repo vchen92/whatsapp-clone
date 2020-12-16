@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Avatar } from '@material-ui/core';
 import './SidebarChat.css';
-import db from './../../firebase';
 import { Link } from 'react-router-dom';
+import db from './../../../firebase';
 
 function SidebarChat({ addNewChat, name, id }) {
   const [seed, setSeed] = useState('');

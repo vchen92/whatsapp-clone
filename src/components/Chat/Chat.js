@@ -8,13 +8,18 @@ import { InsertEmoticon, Mic } from '@material-ui/icons';
 import { useParams } from 'react-router-dom';
 
 import './Chat.css';
-import db from './../firebase';
+import db from './../../firebase';
+import { useStateValue } from './../../hoc/StateProvider/StateProvider';
+import firebase from 'firebase';
 
 function Chat() {
+  const { roomId } = useParams();
+  const [{user}, dispatch] = useStateValue();
+
   const [seed, setSeed] = useState('');
   const [input, setInput] = useState('');
   const [roomName, setRoomName] = useState('');
-  const { roomId } = useParams();
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
 		setSeed(Math.floor(Math.random() * 5000));
@@ -22,15 +27,26 @@ function Chat() {
 
   useEffect(() => {
     if (roomId) {
-      db.collection('rooms').doc(roomId).onSnapshot(snap => {
+      const room = db.collection('rooms').doc(roomId);
+
+      room.onSnapshot(snap => {
         setRoomName(snap.data().name);
-      })
+      });
+
+      room.collection('messages').orderBy('timestamp', 'asc').onSnapshot(snap => (
+        setMessages(snap.docs.map(doc => doc.data()))
+      ));
     }
   }, [roomId]);
   
   const sendMessage = (e) => {
     e.preventDefault();
-    console.log('you typed >>> ', input);
+
+    db.collection('rooms').doc(roomId).collection('messages').add({
+      message: input,
+      name: user.displayName,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    })
 
     setInput('');
   }
@@ -60,25 +76,31 @@ function Chat() {
 			</div>
 
 			<div className="chat__body">
-				<p className="chat__message">
-          <span className="chat__name">Vincent Chen</span>
-          Hey Guys
-          <span className="chat__timestamp">3:52pm</span>
-        </p>
-				<p className={`chat__message ${true && 'chat__receiver'}`}>Hey Guys</p>
-      </div>
+				{messages.map(msg => (
+					<p className={`chat__message ${true && 'chat__receiver'}`}>
+						<span className="chat__name">{msg.name}</span>
+						{msg.message}
+						<span className="chat__timestamp">
+              {new Date(msg.timestamp?.toDate()).toUTCString()}
+            </span>
+					</p>
+				))}
+			</div>
 			<div className="chat__footer">
-        <InsertEmoticon />
-        <form action="">
-          <input 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type a message"
-            type="text"/>
-          <button type="submit" onClick={sendMessage}>Send a message</button>
-        </form>
-        <Mic />
-      </div>
+				<InsertEmoticon />
+				<form action="">
+					<input
+						value={input}
+						onChange={e => setInput(e.target.value)}
+						placeholder="Type a message"
+						type="text"
+					/>
+					<button type="submit" onClick={sendMessage}>
+						Send a message
+					</button>
+				</form>
+				<Mic />
+			</div>
 		</div>
   );
 }

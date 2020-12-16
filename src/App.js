@@ -1,13 +1,13 @@
-import { useState } from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import Chat from './Chat/Chat';
-import Sidebar from './Sidebar/Sidebar';
-import Login from './Login/Login';
+import Chat from './components/Chat/Chat';
+import Sidebar from './components/Sidebar/Sidebar';
+import Login from './components/Login/Login';
 
 import './App.css';
+import { useStateValue } from './hoc/StateProvider/StateProvider';
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [{ user }, dispatch] = useStateValue();
 
   return (
 		<div className="app">
@@ -22,7 +22,9 @@ function App() {
               <Route path="/rooms/:roomId">
                 <Chat />
               </Route>
-              <Route path="/">{/* <Chat /> */}</Route>
+              <Route path="/">
+                <Chat />
+              </Route>
             </Switch>
           </Router>
         </div>      

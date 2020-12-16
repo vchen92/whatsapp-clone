@@ -22,7 +22,7 @@ function SidebarChat({ addNewChat, name, id }) {
           doc.data())))
       );
     }
-  })
+  }, [id])
 
   const createChat = () => {
     const roomName = prompt('Please enter name for chat');

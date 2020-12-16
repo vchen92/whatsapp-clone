@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 import { Avatar, IconButton } from '@material-ui/core';
 import SearchOutlined from '@material-ui/icons/SearchOutlined';
@@ -13,6 +13,7 @@ import { useStateValue } from './../../hoc/StateProvider/StateProvider';
 import firebase from 'firebase';
 
 function Chat() {
+  const messagesEndRef = useRef(null);  
   const { roomId } = useParams();
   const [{user}, dispatch] = useStateValue();
 
@@ -38,6 +39,10 @@ function Chat() {
       ));
     }
   }, [roomId]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages])
   
   const sendMessage = (e) => {
     e.preventDefault();
@@ -59,6 +64,10 @@ function Chat() {
     new Date(messages[messages.length - 1]?.timestamp?.toDate()).toUTCString()
   )
 
+  const scrollToBottom = () => {
+    messagesEndRef.current.scrollIntoView({ behavior: "instant"});
+  }
+
   return (
 		<div className="chat">
 			<div className="chat__header">
@@ -67,7 +76,7 @@ function Chat() {
 				/>
 				<div className="chat__headerInfo">
 					<h3>{roomName}</h3>
-					<p>Last seen at {lastMessage()}</p>
+					<p>Last seen {lastMessage()}</p>
 				</div>
 
 				<div className="chat__headerRight">
@@ -89,10 +98,11 @@ function Chat() {
 						<span className="chat__name">{msg.name}</span>
 						{msg.message}
 						<span className="chat__timestamp">
-              {new Date(msg.timestamp?.toDate()).toUTCString()}
-            </span>
+							{new Date(msg.timestamp?.toDate()).toUTCString()}
+						</span>
 					</p>
 				))}
+				<div ref={messagesEndRef}></div>
 			</div>
 			<div className="chat__footer">
 				<InsertEmoticon />
